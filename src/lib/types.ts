@@ -25,6 +25,27 @@ export type Lead = {
   goal: string
 }
 
+export type ProcessStep = {
+  title: string
+  description: string
+}
+
+export type InsightCard = {
+  title: string
+  description: string
+}
+
+export type BlogPost = {
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  readMinutes: number
+  publishedAt: string
+  author: string
+  coverUrl: string
+}
+
 export type SiteContent = {
   hero: {
     badge: string
@@ -33,12 +54,35 @@ export type SiteContent = {
     primaryCta: string
     secondaryCta: string
     portraitUrl: string
+    metricLabel: string
+    metricValue: string
+    auditNote: string
   }
+  trustSignals: string[]
   stats: Array<{
     label: string
     value: string
   }>
+  insightCards: InsightCard[]
   services: Service[]
   caseStudies: CaseStudy[]
+  caseFeature: {
+    eyebrow: string
+    title: string
+    description: string
+  }
+  processSteps: ProcessStep[]
+  blog: BlogPost[]
   testimonials: Testimonial[]
+  contact: {
+    eyebrow: string
+    headline: string
+    description: string
+    submitLabel: string
+  }
+  footer: {
+    name: string
+    tagline: string
+    email: string
+  }
 }
