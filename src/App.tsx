@@ -3,6 +3,7 @@ import {
   BarChart3,
   CheckCircle2,
   CloudUpload,
+  FileSearch,
   Gauge,
   Globe2,
   LayoutDashboard,
@@ -15,6 +16,7 @@ import {
   Settings2,
   Sparkles,
   Target,
+  Trophy,
   Upload,
   X,
 } from 'lucide-react'
@@ -31,6 +33,29 @@ import {
 import type { Lead, SiteContent } from './lib/types'
 
 const navItems = ['Services', 'Work', 'Process', 'Contact']
+
+const trustSignals = ['Technical SEO', 'Content systems', 'Local growth', 'Analytics']
+
+const insightCards = [
+  {
+    icon: Trophy,
+    title: 'Inspired by credible SEO portfolios',
+    description:
+      'Clear hero value, proof-first messaging, and direct routes into services and work.',
+  },
+  {
+    icon: FileSearch,
+    title: 'Built like a consultant playbook',
+    description:
+      'Every section explains the problem, the method, and the business outcome.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Designed around measurable impact',
+    description:
+      'Case studies and stats are structured for rankings, leads, revenue, and trust.',
+  },
+]
 
 const processSteps = [
   {
@@ -74,6 +99,12 @@ const adminPanels = [
     description:
       'Persist site content, collect leads, and keep admin updates synced from one source.',
   },
+]
+
+const adminStats = [
+  { label: 'Leads captured', value: '24' },
+  { label: 'Case studies', value: '03' },
+  { label: 'Media assets', value: '18' },
 ]
 
 const emptyLead: Lead = {
@@ -281,11 +312,28 @@ function App() {
         </div>
       </section>
 
+      <section className="trust-strip" aria-label="SEO focus areas">
+        <span>Built for</span>
+        {trustSignals.map((signal) => (
+          <strong key={signal}>{signal}</strong>
+        ))}
+      </section>
+
       <section className="stats-grid" aria-label="SEO performance results">
         {content.stats.map((stat) => (
           <article key={stat.label}>
             <strong>{stat.value}</strong>
             <span>{stat.label}</span>
+          </article>
+        ))}
+      </section>
+
+      <section className="insight-section">
+        {insightCards.map((card) => (
+          <article key={card.title}>
+            <card.icon size={26} />
+            <h3>{card.title}</h3>
+            <p>{card.description}</p>
           </article>
         ))}
       </section>
@@ -323,7 +371,17 @@ function App() {
           </p>
         </div>
 
-        <div className="case-grid">
+        <div className="case-showcase">
+          <div className="case-feature">
+            <span>Impact snapshot</span>
+            <h3>Use real screenshots, rankings, and traffic wins here.</h3>
+            <p>
+              Research showed strong SEO portfolios build trust quickly with
+              visible proof: result screenshots, tight bio positioning, and
+              organized case-study blocks.
+            </p>
+          </div>
+          <div className="case-grid">
           {content.caseStudies.map((study) => (
             <article className="case-card" key={study.title}>
               <img src={study.imageUrl} alt="" />
@@ -335,6 +393,7 @@ function App() {
               </div>
             </article>
           ))}
+          </div>
         </div>
       </section>
 
@@ -606,6 +665,32 @@ function AdminDashboard({
             </button>
             {adminNotice && <p className="form-status">{adminNotice}</p>}
           </div>
+        </div>
+
+        <div className="admin-operations">
+          <section className="admin-metrics">
+            {adminStats.map((stat) => (
+              <article key={stat.label}>
+                <strong>{stat.value}</strong>
+                <span>{stat.label}</span>
+              </article>
+            ))}
+          </section>
+
+          <section className="admin-leads-card">
+            <div>
+              <p className="eyebrow">Lead inbox</p>
+              <h3>Recent inquiry preview</h3>
+            </div>
+            <article>
+              <strong>Growth audit request</strong>
+              <span>Example Company · technical SEO and content roadmap</span>
+            </article>
+            <article>
+              <strong>Local SEO consultation</strong>
+              <span>Service business · map-pack visibility and lead quality</span>
+            </article>
+          </section>
         </div>
       </section>
     </main>
