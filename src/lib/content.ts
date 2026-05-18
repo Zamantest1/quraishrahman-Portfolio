@@ -2,45 +2,45 @@ import type { SiteContent } from './types'
 
 export const defaultContent: SiteContent = {
   hero: {
-    badge: 'SEO Strategy · Technical Audits · Organic Growth',
-    headline: 'Quraish Rahman helps ambitious brands win search visibility.',
+    badge: 'Independent SEO Consultant for service brands and growing teams',
+    headline: 'Make organic search your most reliable growth channel.',
     intro:
-      'A performance-led SEO expert focused on ranking systems, content architecture, and conversion-ready organic traffic for growing businesses.',
-    primaryCta: 'Book an SEO audit',
-    secondaryCta: 'View growth work',
+      'Quraish Rahman builds technical SEO, content strategy, and reporting systems that help businesses rank for the searches their best customers already make.',
+    primaryCta: 'Request an SEO audit',
+    secondaryCta: 'See the approach',
     portraitUrl:
       'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=900&q=80',
   },
   stats: [
-    { value: '214%', label: 'average organic traffic lift' },
-    { value: '68+', label: 'technical audits delivered' },
-    { value: '4.9/5', label: 'client satisfaction score' },
-    { value: '12 yrs', label: 'digital growth experience' },
+    { value: '214%', label: 'sample organic traffic lift' },
+    { value: '68+', label: 'audit issues prioritized' },
+    { value: '4.9/5', label: 'client review score' },
+    { value: '12 yrs', label: 'digital marketing experience' },
   ],
   services: [
     {
       title: 'Technical SEO Audits',
       description:
-        'Crawl diagnostics, Core Web Vitals, indexation, schema, internal links, and search performance blockers translated into action plans.',
-      metrics: '30-day implementation roadmap',
+        'Find indexation issues, slow pages, crawl waste, schema gaps, broken links, and technical blockers that prevent strong pages from ranking.',
+      metrics: 'Audit report + 30-day roadmap',
     },
     {
       title: 'Content Growth Systems',
       description:
-        'Keyword clustering, topical authority maps, content briefs, and editorial calendars designed to compound qualified organic demand.',
-      metrics: 'Topical maps for 6–12 months',
+        'Turn keyword research into topic clusters, service pages, blog briefs, and publishing plans built around buyer intent.',
+      metrics: '6-month content plan',
     },
     {
       title: 'Local & Service SEO',
       description:
-        'Google Business Profile optimization, service page structures, local landing pages, and trust-building review strategies.',
-      metrics: 'Higher map-pack visibility',
+        'Improve Google Business Profile signals, local landing pages, review trust, and service-area visibility for high-intent searches.',
+      metrics: 'Local visibility roadmap',
     },
     {
       title: 'Analytics & Reporting',
       description:
-        'GA4, Search Console, Looker Studio dashboards, conversion tracking, and monthly performance reviews with clear next actions.',
-      metrics: 'Executive-ready SEO reporting',
+        'Connect GA4, Search Console, and Looker Studio so clients can see rankings, traffic, conversions, and next priorities clearly.',
+      metrics: 'Monthly growth dashboard',
     },
   ],
   caseStudies: [

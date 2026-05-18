@@ -6,7 +6,7 @@ A professional blue-shade SEO expert portfolio for **Quraish Rahman**. The front
 
 - Professional SEO-focused landing page with services, stats, process, case studies, testimonials, and contact form
 - Responsive blue visual system with polished cards, fixed navigation, and mobile menu
-- Admin dashboard section for editing hero copy and managing image URLs/uploads
+- Private `/admin` dashboard scaffold for editing hero copy and managing image URLs/uploads
 - Supabase-ready content loading, content saving, and lead submission
 - Cloudinary unsigned upload helper for admin images
 - Demo fallback content when environment variables are not configured
@@ -53,4 +53,4 @@ Use `supabase/schema.sql` as the starter SQL for the `site_content` and `leads` 
 
 ## Admin flow
 
-The admin dashboard currently lives in the page’s **Admin** section. It is frontend-ready: when Supabase variables are present, saving content persists the hero copy/image URL; when Cloudinary variables are present, image uploads return a hosted `secure_url`.
+The admin dashboard lives at `/admin`, separate from the public landing page. It is frontend-ready: when Supabase variables are present, saving content persists the hero copy/image URL; when Cloudinary variables are present, image uploads return a hosted `secure_url`. Add Supabase Auth before production launch so only approved admins can access the dashboard.
