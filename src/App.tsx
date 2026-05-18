@@ -1,5 +1,6 @@
 import {
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   CheckCircle2,
   CloudUpload,
@@ -12,6 +13,7 @@ import {
   LogIn,
   Mail,
   Menu,
+  PenSquare,
   Search,
   Settings2,
   Sparkles,
@@ -22,6 +24,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
+import { trackEvent, trackPageView } from './lib/analytics'
 import { uploadToCloudinary } from './lib/cloudinary'
 import { defaultContent } from './lib/content'
 import {
@@ -32,53 +35,9 @@ import {
 } from './lib/supabase'
 import type { Lead, SiteContent } from './lib/types'
 
-const navItems = ['Services', 'Work', 'Process', 'Contact']
+const navItems = ['Services', 'Work', 'Process', 'Insights', 'Contact']
 
-const trustSignals = ['Technical SEO', 'Content systems', 'Local growth', 'Analytics']
-
-const insightCards = [
-  {
-    icon: Trophy,
-    title: 'Inspired by credible SEO portfolios',
-    description:
-      'Clear hero value, proof-first messaging, and direct routes into services and work.',
-  },
-  {
-    icon: FileSearch,
-    title: 'Built like a consultant playbook',
-    description:
-      'Every section explains the problem, the method, and the business outcome.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Designed around measurable impact',
-    description:
-      'Case studies and stats are structured for rankings, leads, revenue, and trust.',
-  },
-]
-
-const processSteps = [
-  {
-    title: 'Diagnose',
-    description:
-      'Audit technical health, search demand, content gaps, and conversion intent.',
-  },
-  {
-    title: 'Prioritize',
-    description:
-      'Score SEO opportunities by impact, difficulty, revenue fit, and timeline.',
-  },
-  {
-    title: 'Execute',
-    description:
-      'Ship focused improvements across site architecture, content, and reporting.',
-  },
-  {
-    title: 'Compound',
-    description:
-      'Measure gains, expand winning clusters, and continuously defend rankings.',
-  },
-]
+const insightIcons = [Trophy, FileSearch, BarChart3]
 
 const adminPanels = [
   {
@@ -114,9 +73,31 @@ const emptyLead: Lead = {
   goal: '',
 }
 
+function formatDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
 function App() {
   const isAdminRoute = window.location.pathname.startsWith('/admin')
-  const [content, setContent] = useState(defaultContent)
+  const [content, setContent] = useState<SiteContent>(defaultContent)
   const [lead, setLead] = useState(emptyLead)
   const [status, setStatus] = useState('')
   const [adminNotice, setAdminNotice] = useState('')
@@ -137,8 +118,8 @@ function App() {
       try {
         const remoteContent = await fetchSiteContent()
         if (remoteContent) {
-          setContent(remoteContent)
-          setImageUrl(remoteContent.hero.portraitUrl)
+          setContent({ ...defaultContent, ...remoteContent })
+          setImageUrl(remoteContent.hero?.portraitUrl ?? defaultContent.hero.portraitUrl)
         }
       } catch (error) {
         console.error(error)
@@ -149,16 +130,23 @@ function App() {
     loadContent()
   }, [])
 
+  useEffect(() => {
+    if (!isAdminRoute) {
+      trackPageView()
+    }
+  }, [isAdminRoute])
+
   async function handleLeadSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setStatus('Sending your SEO brief...')
+    trackEvent({ name: 'lead_form_submit' })
 
     try {
       await saveLead(lead)
       setLead(emptyLead)
       setStatus(
         isSupabaseConfigured
-          ? 'Thanks — your brief has been saved.'
+          ? 'Thanks — your brief has been saved. Quraish will reply within 1 business day.'
           : 'Thanks — demo mode captured the form locally.',
       )
     } catch (error) {
@@ -225,13 +213,15 @@ function App() {
     )
   }
 
+  const { hero, stats, insightCards, services, caseStudies, caseFeature, processSteps, blog, testimonials, contact, footer, trustSignals } = content
+
   return (
     <main>
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Quraish Rahman home">
           <span className="brand-mark">QR</span>
           <span>
-            <strong>Quraish Rahman</strong>
+            <strong>{footer.name}</strong>
             <small>SEO Growth Expert</small>
           </span>
         </a>
@@ -241,8 +231,9 @@ function App() {
           type="button"
           onClick={() => setMobileNavOpen((isOpen) => !isOpen)}
           aria-label="Toggle navigation"
+          aria-expanded={mobileNavOpen}
         >
-          {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+          {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
 
         <nav className={mobileNavOpen ? 'nav nav-open' : 'nav'}>
@@ -255,8 +246,16 @@ function App() {
               {item}
             </a>
           ))}
-          <a className="nav-cta" href="#contact">
+          <a
+            className="nav-cta"
+            href="#contact"
+            onClick={() => {
+              setMobileNavOpen(false)
+              trackEvent({ name: 'nav_cta_click' })
+            }}
+          >
             Get audit
+            <ArrowRight size={16} />
           </a>
         </nav>
       </header>
@@ -264,28 +263,36 @@ function App() {
       <section className="hero-section" id="top">
         <div className="hero-copy">
           <p className="eyebrow">
-            <Sparkles size={18} />
-            {content.hero.badge}
+            <Sparkles size={14} />
+            {hero.badge}
           </p>
           <h1>
-            Make organic search your most reliable growth channel.
+            Make organic search your most <span className="accent">reliable</span> growth channel.
           </h1>
-          <p className="hero-intro">{content.hero.intro}</p>
+          <p className="hero-intro">{hero.intro}</p>
 
           <div className="hero-actions">
-            <a className="button primary" href="#contact">
-              {content.hero.primaryCta}
+            <a
+              className="button primary"
+              href="#contact"
+              onClick={() => trackEvent({ name: 'hero_primary_cta_click' })}
+            >
+              {hero.primaryCta}
               <ArrowRight size={18} />
             </a>
-            <a className="button secondary" href="#work">
-              {content.hero.secondaryCta}
+            <a
+              className="button secondary"
+              href="#work"
+              onClick={() => trackEvent({ name: 'hero_secondary_cta_click' })}
+            >
+              {hero.secondaryCta}
             </a>
           </div>
 
           <div className="hero-highlights">
             {serviceHighlights.map((item) => (
               <span key={item.label}>
-                <item.icon size={18} />
+                <item.icon size={16} />
                 {item.label}
               </span>
             ))}
@@ -296,18 +303,18 @@ function App() {
           </div>
         </div>
 
-        <div className="hero-card" aria-label="Quraish Rahman SEO dashboard">
-          <img src={content.hero.portraitUrl} alt="Quraish Rahman" />
+        <div className="hero-card" aria-label="Quraish Rahman SEO highlight">
+          <img src={hero.portraitUrl} alt="Quraish Rahman" />
           <div className="ranking-card">
             <LineChart size={24} />
             <div>
-              <span>Organic growth</span>
-              <strong>+214%</strong>
+              <span>{hero.metricLabel}</span>
+              <strong>{hero.metricValue}</strong>
             </div>
           </div>
           <div className="audit-card">
-            <CheckCircle2 size={20} />
-            42 technical fixes prioritized
+            <CheckCircle2 size={18} />
+            {hero.auditNote}
           </div>
         </div>
       </section>
@@ -320,7 +327,7 @@ function App() {
       </section>
 
       <section className="stats-grid" aria-label="SEO performance results">
-        {content.stats.map((stat) => (
+        {stats.map((stat) => (
           <article key={stat.label}>
             <strong>{stat.value}</strong>
             <span>{stat.label}</span>
@@ -329,13 +336,18 @@ function App() {
       </section>
 
       <section className="insight-section">
-        {insightCards.map((card) => (
-          <article key={card.title}>
-            <card.icon size={26} />
-            <h3>{card.title}</h3>
-            <p>{card.description}</p>
-          </article>
-        ))}
+        {insightCards.map((card, index) => {
+          const Icon = insightIcons[index % insightIcons.length]
+          return (
+            <article key={card.title}>
+              <span className="icon-badge">
+                <Icon size={22} />
+              </span>
+              <h3>{card.title}</h3>
+              <p>{card.description}</p>
+            </article>
+          )
+        })}
       </section>
 
       <section className="section" id="services">
@@ -345,12 +357,12 @@ function App() {
           <p>
             Quraish brings the messy parts of SEO into a focused plan: technical
             health, content priorities, authority signals, and monthly execution
-            that business owners can understand.
+            that business owners can actually understand.
           </p>
         </div>
 
         <div className="service-grid">
-          {content.services.map((service, index) => (
+          {services.map((service, index) => (
             <article className="service-card" key={service.title}>
               <span className="card-number">{String(index + 1).padStart(2, '0')}</span>
               <h3>{service.title}</h3>
@@ -366,33 +378,30 @@ function App() {
           <p className="eyebrow">Selected SEO wins</p>
           <h2>Focused improvements that move search performance.</h2>
           <p>
-            The case study layout is designed to showcase before/after outcomes,
-            rankings, leads, and project images once real project details are ready.
+            Case studies showcase before/after outcomes, rankings, leads, and
+            project images. Replace with real screenshots and metrics from the
+            admin once they're ready.
           </p>
         </div>
 
         <div className="case-showcase">
           <div className="case-feature">
-            <span>Impact snapshot</span>
-            <h3>Use real screenshots, rankings, and traffic wins here.</h3>
-            <p>
-              Research showed strong SEO portfolios build trust quickly with
-              visible proof: result screenshots, tight bio positioning, and
-              organized case-study blocks.
-            </p>
+            <span className="eyebrow">{caseFeature.eyebrow}</span>
+            <h3>{caseFeature.title}</h3>
+            <p>{caseFeature.description}</p>
           </div>
           <div className="case-grid">
-          {content.caseStudies.map((study) => (
-            <article className="case-card" key={study.title}>
-              <img src={study.imageUrl} alt="" />
-              <div>
-                <span>{study.category}</span>
-                <h3>{study.title}</h3>
-                <p>{study.description}</p>
-                <strong>{study.result}</strong>
-              </div>
-            </article>
-          ))}
+            {caseStudies.map((study) => (
+              <article className="case-card" key={study.title}>
+                <img src={study.imageUrl} alt="" />
+                <div>
+                  <span>{study.category}</span>
+                  <h3>{study.title}</h3>
+                  <p>{study.description}</p>
+                  <strong>{study.result}</strong>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -403,7 +412,7 @@ function App() {
           <h2>Four stages from audit to compounding visibility.</h2>
           <p>
             Every engagement starts with clarity, then moves into execution and
-            reporting so clients always know what is happening and why.
+            reporting so clients always know what's happening and why.
           </p>
         </div>
 
@@ -418,17 +427,67 @@ function App() {
         </div>
       </section>
 
+      <section className="section blog-section" id="insights">
+        <div className="section-heading">
+          <p className="eyebrow">
+            <PenSquare size={14} />
+            Insights & blog
+          </p>
+          <h2>SEO writing built for operators, not theorists.</h2>
+          <p>
+            Practical playbooks on technical SEO, content systems, and local
+            visibility. New articles publish from the admin blog editor.
+          </p>
+        </div>
+
+        <div className="blog-grid">
+          {blog.map((post) => (
+            <a
+              className="blog-card"
+              href={`#${post.slug}`}
+              key={post.slug}
+              onClick={() =>
+                trackEvent({
+                  name: 'blog_card_click',
+                  properties: { slug: post.slug },
+                })
+              }
+            >
+              <img src={post.coverUrl} alt="" />
+              <div>
+                <div className="blog-meta">
+                  <span className="blog-category">{post.category}</span>
+                  <span className="dot" aria-hidden="true" />
+                  <span>{formatDate(post.publishedAt)}</span>
+                  <span className="dot" aria-hidden="true" />
+                  <span>{post.readMinutes} min read</span>
+                </div>
+                <h3>{post.title}</h3>
+                <p>{post.excerpt}</p>
+                <span className="read-more">
+                  Read article
+                  <ArrowUpRight size={16} />
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <section className="testimonial-section">
-        <BarChart3 className="testimonial-icon" size={42} />
-        <div>
-          {content.testimonials.map((testimonial) => (
-            <blockquote key={testimonial.name}>
-              “{testimonial.quote}”
+        <BarChart3 className="testimonial-icon" size={36} />
+        <div className="testimonial-grid">
+          {testimonials.map((testimonial) => (
+            <article className="testimonial-card" key={testimonial.name}>
+              <blockquote>{testimonial.quote}</blockquote>
               <footer>
-                <strong>{testimonial.name}</strong>
-                <span>{testimonial.role}</span>
+                <span className="testimonial-avatar">{getInitials(testimonial.name)}</span>
+                <div>
+                  <strong>{testimonial.name}</strong>
+                  <span>{testimonial.role}</span>
+                </div>
               </footer>
-            </blockquote>
+            </article>
           ))}
         </div>
       </section>
@@ -436,14 +495,28 @@ function App() {
       <section className="contact-section" id="contact">
         <div>
           <p className="eyebrow">
-            <Mail size={18} />
-            Start a search growth plan
+            <Mail size={14} />
+            {contact.eyebrow}
           </p>
-          <h2>Tell Quraish what you want organic search to do next.</h2>
-          <p>
-            Share the website, market, and growth goal. Quraish can use this
-            brief to decide the best audit path and next SEO priorities.
-          </p>
+          <h2>{contact.headline}</h2>
+          <p>{contact.description}</p>
+
+          <div className="contact-info">
+            <a href={`mailto:${footer.email}`}>
+              <Mail size={20} />
+              <div>
+                <strong>Email Quraish</strong>
+                <span>{footer.email}</span>
+              </div>
+            </a>
+            <a href="#work">
+              <BarChart3 size={20} />
+              <div>
+                <strong>See recent results</strong>
+                <span>Browse SEO case studies</span>
+              </div>
+            </a>
+          </div>
         </div>
 
         <form className="contact-form" onSubmit={handleLeadSubmit}>
@@ -488,11 +561,11 @@ function App() {
               onChange={(event) =>
                 setLead((current) => ({ ...current, goal: event.target.value }))
               }
-              placeholder="Tell us about ranking, traffic, or lead goals"
+              placeholder="Tell us about your ranking, traffic, or lead goals"
             />
           </label>
           <button className="button primary" type="submit">
-            Send brief
+            {contact.submitLabel}
             <ArrowRight size={18} />
           </button>
           {status && <p className="form-status">{status}</p>}
@@ -501,17 +574,19 @@ function App() {
 
       <footer className="site-footer">
         <div>
-          <strong>Quraish Rahman</strong>
-          <span>Professional SEO strategy, audits, and organic growth systems.</span>
+          <strong>{footer.name}</strong>
+          <span>{footer.tagline}</span>
         </div>
-        <a href="/admin">
-          <Lock size={16} />
-          Admin
-        </a>
-        <a href="#top">
-          <Globe2 size={16} />
-          Back to top
-        </a>
+        <div className="footer-links">
+          <a href="/admin">
+            <Lock size={16} />
+            Admin
+          </a>
+          <a href="#top">
+            <Globe2 size={16} />
+            Back to top
+          </a>
+        </div>
       </footer>
     </main>
   )
@@ -549,7 +624,7 @@ function AdminDashboard({
 
         <div className="admin-login-copy">
           <p className="eyebrow">
-            <Lock size={18} />
+            <Lock size={14} />
             Admin only
           </p>
           <h1>Manage portfolio content from a private dashboard.</h1>
