@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LineChart,
   Lock,
+  LogIn,
   Mail,
   Menu,
   Search,
@@ -29,7 +30,7 @@ import {
 } from './lib/supabase'
 import type { Lead, SiteContent } from './lib/types'
 
-const navItems = ['Services', 'Work', 'Process', 'Admin']
+const navItems = ['Services', 'Work', 'Process', 'Contact']
 
 const processSteps = [
   {
@@ -83,6 +84,7 @@ const emptyLead: Lead = {
 }
 
 function App() {
+  const isAdminRoute = window.location.pathname.startsWith('/admin')
   const [content, setContent] = useState(defaultContent)
   const [lead, setLead] = useState(emptyLead)
   const [status, setStatus] = useState('')
@@ -178,6 +180,20 @@ function App() {
     }
   }
 
+  if (isAdminRoute) {
+    return (
+      <AdminDashboard
+        adminNotice={adminNotice}
+        content={content}
+        handleContentSave={handleContentSave}
+        handleImageUpload={handleImageUpload}
+        imageUrl={imageUrl}
+        setContent={setContent}
+        setImageUrl={setImageUrl}
+      />
+    )
+  }
+
   return (
     <main>
       <header className="site-header">
@@ -220,7 +236,9 @@ function App() {
             <Sparkles size={18} />
             {content.hero.badge}
           </p>
-          <h1>{content.hero.headline}</h1>
+          <h1>
+            Make organic search your most reliable growth channel.
+          </h1>
           <p className="hero-intro">{content.hero.intro}</p>
 
           <div className="hero-actions">
@@ -240,6 +258,10 @@ function App() {
                 {item.label}
               </span>
             ))}
+          </div>
+          <div className="hero-proof">
+            <strong>Trusted for SEO audits, growth roadmaps, and measurable traffic lifts.</strong>
+            <span>No vanity reports — only priority actions tied to rankings, leads, and revenue.</span>
           </div>
         </div>
 
@@ -271,10 +293,11 @@ function App() {
       <section className="section" id="services">
         <div className="section-heading">
           <p className="eyebrow">SEO services</p>
-          <h2>Search programs built for durable business growth.</h2>
+          <h2>Clear SEO systems, not random keyword work.</h2>
           <p>
-            Strategic SEO support that balances technical precision, content
-            quality, and measurable commercial outcomes.
+            Quraish brings the messy parts of SEO into a focused plan: technical
+            health, content priorities, authority signals, and monthly execution
+            that business owners can understand.
           </p>
         </div>
 
@@ -293,7 +316,11 @@ function App() {
       <section className="section work-section" id="work">
         <div className="section-heading">
           <p className="eyebrow">Selected SEO wins</p>
-          <h2>From technical fixes to ranking momentum.</h2>
+          <h2>Focused improvements that move search performance.</h2>
+          <p>
+            The case study layout is designed to showcase before/after outcomes,
+            rankings, leads, and project images once real project details are ready.
+          </p>
         </div>
 
         <div className="case-grid">
@@ -314,7 +341,11 @@ function App() {
       <section className="section process-section" id="process">
         <div className="section-heading">
           <p className="eyebrow">Growth process</p>
-          <h2>A clear operating system for organic acquisition.</h2>
+          <h2>Four stages from audit to compounding visibility.</h2>
+          <p>
+            Every engagement starts with clarity, then moves into execution and
+            reporting so clients always know what is happening and why.
+          </p>
         </div>
 
         <div className="process-grid">
@@ -343,13 +374,150 @@ function App() {
         </div>
       </section>
 
-      <section className="admin-section" id="admin">
-        <div className="section-heading">
-          <p className="eyebrow">Admin dashboard</p>
-          <h2>Manage Quraish’s portfolio content without touching code.</h2>
+      <section className="contact-section" id="contact">
+        <div>
+          <p className="eyebrow">
+            <Mail size={18} />
+            Start a search growth plan
+          </p>
+          <h2>Tell Quraish what you want organic search to do next.</h2>
           <p>
-            This frontend is ready for Supabase persistence and Cloudinary image
-            management. Add environment variables to activate live data.
+            Share the website, market, and growth goal. Quraish can use this
+            brief to decide the best audit path and next SEO priorities.
+          </p>
+        </div>
+
+        <form className="contact-form" onSubmit={handleLeadSubmit}>
+          <label>
+            Name
+            <input
+              required
+              value={lead.name}
+              onChange={(event) =>
+                setLead((current) => ({ ...current, name: event.target.value }))
+              }
+              placeholder="Your name"
+            />
+          </label>
+          <label>
+            Email
+            <input
+              required
+              type="email"
+              value={lead.email}
+              onChange={(event) =>
+                setLead((current) => ({ ...current, email: event.target.value }))
+              }
+              placeholder="you@company.com"
+            />
+          </label>
+          <label>
+            Company / website
+            <input
+              value={lead.company}
+              onChange={(event) =>
+                setLead((current) => ({ ...current, company: event.target.value }))
+              }
+              placeholder="example.com"
+            />
+          </label>
+          <label>
+            SEO goal
+            <textarea
+              required
+              value={lead.goal}
+              onChange={(event) =>
+                setLead((current) => ({ ...current, goal: event.target.value }))
+              }
+              placeholder="Tell us about ranking, traffic, or lead goals"
+            />
+          </label>
+          <button className="button primary" type="submit">
+            Send brief
+            <ArrowRight size={18} />
+          </button>
+          {status && <p className="form-status">{status}</p>}
+        </form>
+      </section>
+
+      <footer className="site-footer">
+        <div>
+          <strong>Quraish Rahman</strong>
+          <span>Professional SEO strategy, audits, and organic growth systems.</span>
+        </div>
+        <a href="/admin">
+          <Lock size={16} />
+          Admin
+        </a>
+        <a href="#top">
+          <Globe2 size={16} />
+          Back to top
+        </a>
+      </footer>
+    </main>
+  )
+}
+
+type AdminDashboardProps = {
+  adminNotice: string
+  content: SiteContent
+  handleContentSave: () => Promise<void>
+  handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>
+  imageUrl: string
+  setContent: React.Dispatch<React.SetStateAction<SiteContent>>
+  setImageUrl: React.Dispatch<React.SetStateAction<string>>
+}
+
+function AdminDashboard({
+  adminNotice,
+  content,
+  handleContentSave,
+  handleImageUpload,
+  imageUrl,
+  setContent,
+  setImageUrl,
+}: AdminDashboardProps) {
+  return (
+    <main className="admin-page">
+      <section className="admin-login-panel">
+        <a className="brand" href="/" aria-label="Back to Quraish Rahman portfolio">
+          <span className="brand-mark">QR</span>
+          <span>
+            <strong>Quraish Admin</strong>
+            <small>Private portfolio management</small>
+          </span>
+        </a>
+
+        <div className="admin-login-copy">
+          <p className="eyebrow">
+            <Lock size={18} />
+            Admin only
+          </p>
+          <h1>Manage portfolio content from a private dashboard.</h1>
+          <p>
+            This page is separated from the public website. Supabase auth can be
+            connected here when credentials are ready; for now it previews the
+            admin editing experience.
+          </p>
+        </div>
+
+        <div className="admin-auth-card">
+          <LogIn size={24} />
+          <strong>Authentication placeholder</strong>
+          <span>
+            Add Supabase Auth rules before launch so only approved admins can
+            access content, leads, and Cloudinary uploads.
+          </span>
+        </div>
+      </section>
+
+      <section className="admin-section admin-private-section">
+        <div className="section-heading">
+          <p className="eyebrow">Dashboard</p>
+          <h2>Content, media, and lead management.</h2>
+          <p>
+            Built for Supabase persistence and Cloudinary image hosting once
+            project keys are added.
           </p>
         </div>
 
@@ -440,87 +608,6 @@ function App() {
           </div>
         </div>
       </section>
-
-      <section className="contact-section" id="contact">
-        <div>
-          <p className="eyebrow">
-            <Mail size={18} />
-            Start a search growth plan
-          </p>
-          <h2>Tell Quraish what you want organic search to do next.</h2>
-          <p>
-            Share your website, market, and growth goal. The admin side can save
-            each inquiry directly into Supabase once configured.
-          </p>
-        </div>
-
-        <form className="contact-form" onSubmit={handleLeadSubmit}>
-          <label>
-            Name
-            <input
-              required
-              value={lead.name}
-              onChange={(event) =>
-                setLead((current) => ({ ...current, name: event.target.value }))
-              }
-              placeholder="Your name"
-            />
-          </label>
-          <label>
-            Email
-            <input
-              required
-              type="email"
-              value={lead.email}
-              onChange={(event) =>
-                setLead((current) => ({ ...current, email: event.target.value }))
-              }
-              placeholder="you@company.com"
-            />
-          </label>
-          <label>
-            Company / website
-            <input
-              value={lead.company}
-              onChange={(event) =>
-                setLead((current) => ({ ...current, company: event.target.value }))
-              }
-              placeholder="example.com"
-            />
-          </label>
-          <label>
-            SEO goal
-            <textarea
-              required
-              value={lead.goal}
-              onChange={(event) =>
-                setLead((current) => ({ ...current, goal: event.target.value }))
-              }
-              placeholder="Tell us about ranking, traffic, or lead goals"
-            />
-          </label>
-          <button className="button primary" type="submit">
-            Send brief
-            <ArrowRight size={18} />
-          </button>
-          {status && <p className="form-status">{status}</p>}
-        </form>
-      </section>
-
-      <footer className="site-footer">
-        <div>
-          <strong>Quraish Rahman</strong>
-          <span>Professional SEO portfolio powered by Supabase + Cloudinary.</span>
-        </div>
-        <a href="#admin">
-          <Lock size={16} />
-          Admin preview
-        </a>
-        <a href="#top">
-          <Globe2 size={16} />
-          Back to top
-        </a>
-      </footer>
     </main>
   )
 }
