@@ -1,56 +1,85 @@
-# Quraish Rahman Portfolio
+# Quraish Rahman — SEO Portfolio
 
-A professional blue-shade SEO expert portfolio for **Quraish Rahman**. The frontend includes public portfolio sections, lead capture, and an admin dashboard scaffold ready for Supabase content storage and Cloudinary image uploads.
+Production portfolio + CMS for Quraish Rahman, an independent SEO strategist. Built on the latest Next.js (App Router) with Supabase (CMS + auth + analytics) and Cloudinary (image hosting). Deploys automatically to Vercel from the `main` branch.
 
-## Features
+## Stack
 
-- Professional SEO-focused landing page with services, stats, process, case studies, testimonials, and contact form
-- Responsive blue visual system with polished cards, fixed navigation, and mobile menu
-- Private `/admin` dashboard scaffold for editing hero copy and managing image URLs/uploads
-- Supabase-ready content loading, content saving, and lead submission
-- Cloudinary unsigned upload helper for admin images
-- Demo fallback content when environment variables are not configured
+- **Framework**: Next.js (App Router, Server Components, Server Actions) + TypeScript
+- **Styling**: Tailwind CSS v4 with a CSS-variable design system
+- **Animation**: Framer Motion
+- **CMS / Auth**: Supabase (Postgres + Realtime + Auth)
+- **Images**: Cloudinary (signed server-side uploads + `next-cloudinary` rendering)
+- **Editor**: TipTap (rich-text for blog posts and case studies)
+- **Charts**: Recharts (admin analytics)
+- **Icons**: Lucide
 
-## Tech stack
+## Pages
 
-- Vite
-- React
-- TypeScript
-- CSS
-- Supabase client
-- Cloudinary unsigned uploads
+Public:
+- `/` Home (hero, stats bar, services teaser, featured case study, testimonial, CTA)
+- `/about`
+- `/services`
+- `/case-studies` + `/case-studies/[slug]`
+- `/blog` + `/blog/[slug]`
+- `/contact`
 
-## Getting started
+Admin (protected, no public navbar/footer):
+- `/admin/login`
+- `/admin` — dashboard with live visitors + stats + 30-day chart
+- `/admin/analytics` — full traffic, top pages, recent page views
+- `/admin/leads` — contact form submissions
+- `/admin/content` — edit hero / about / testimonial / featured case study
+- `/admin/images` — upload hero / about / OG images via Cloudinary
+- `/admin/blog` — list / new / edit blog posts (TipTap editor)
+- `/admin/case-studies` — list / new / edit case studies (TipTap + dynamic result metrics)
+
+## Local development
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local   # fill in real values
+npm run dev                  # http://localhost:3000
 ```
 
 ## Environment variables
 
-Create `.env.local` when Supabase and Cloudinary credentials are available:
+Variable names live in `.env.example`. Real values must be set in two places:
+
+1. **Vercel** → Project Settings → Environment Variables (powers the deployed site).
+2. **GitHub** → Settings → Secrets and variables → Actions (for any CI workflows).
+
+Never commit a `.env.local` file. The `SUPABASE_SERVICE_ROLE_KEY` and `CLOUDINARY_API_SECRET` are server-only — they MUST NOT be prefixed with `NEXT_PUBLIC_` and must never be referenced from a client component.
+
+## Database
+
+The Supabase schema lives in `supabase/migrations/`. Apply migrations from the Supabase dashboard's SQL editor in numerical order, or via the Supabase CLI:
 
 ```bash
-VITE_SUPABASE_URL="https://your-project.supabase.co"
-VITE_SUPABASE_ANON_KEY="your-public-anon-key"
-VITE_CLOUDINARY_CLOUD_NAME="your-cloud-name"
-VITE_CLOUDINARY_UPLOAD_PRESET="your-unsigned-upload-preset"
+supabase db push
 ```
 
-## Scripts
+Tables:
+- `leads` — contact form submissions
+- `site_content` — editable text fields and image references (keyed)
+- `blog_posts` — title, slug, body_html, cover image, published flag
+- `case_studies` — title, slug, challenge/strategy HTML, results JSON, testimonial
+- `newsletter` — email signups
+- `page_views`, `visitors`, `active_sessions` — privacy-respecting analytics
 
-```bash
-npm run dev
-npm run lint
-npm run build
-npm run preview
-```
+Row-Level Security is enabled on every table. Public reads/inserts go through anon key; admin reads/writes go through the service role key from server-only code.
 
-## Supabase setup
+## Admin user
 
-Use `supabase/schema.sql` as the starter SQL for the `site_content` and `leads` tables. Insert the JSON from `src/lib/content.ts` into `site_content.content` with slug `quraish-rahman` to seed live content.
+The admin user is created manually in Supabase → Authentication → Users → Add user → "Create new user" with email + password. Then sign in at `/admin/login`.
 
-## Admin flow
+## Deployment
 
-The admin dashboard lives at `/admin`, separate from the public landing page. It is frontend-ready: when Supabase variables are present, saving content persists the hero copy/image URL; when Cloudinary variables are present, image uploads return a hosted `secure_url`. Add Supabase Auth before production launch so only approved admins can access the dashboard.
+Vercel auto-deploys every push to `main`. To switch Vercel projects:
+
+1. Import this GitHub repo into the new Vercel project.
+2. Paste every variable from `.env.example` into the new project's Environment Variables.
+3. Push to `main` — that's it.
+
+## Credit
+
+Built by [Shomik](https://shomikujzaman.vercel.app).

@@ -1,36 +1,17 @@
-type CloudinaryUploadResult = {
-  secure_url: string
+import { env, isCloudinaryConfigured } from '@/lib/env'
+
+export function buildCloudinaryUrl(publicId: string | null | undefined, opts?: { width?: number; height?: number }) {
+  if (!publicId) return null
+  if (!isCloudinaryConfigured) return null
+  const transforms: string[] = ['f_auto', 'q_auto']
+  if (opts?.width) transforms.push(`w_${opts.width}`)
+  if (opts?.height) transforms.push(`h_${opts.height}`)
+  const t = transforms.join(',')
+  return `https://res.cloudinary.com/${env.cloudinaryCloudName}/image/upload/${t}/${publicId}`
 }
 
-export const isCloudinaryConfigured = Boolean(
-  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME &&
-    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
-)
-
-export async function uploadToCloudinary(file: File) {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error('Cloudinary environment variables are not configured.')
-  }
-
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('upload_preset', uploadPreset)
-
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-    {
-      method: 'POST',
-      body: formData,
-    },
-  )
-
-  if (!response.ok) {
-    throw new Error('Cloudinary upload failed.')
-  }
-
-  const result = (await response.json()) as CloudinaryUploadResult
-  return result.secure_url
+export const cloudinaryConfig = {
+  cloudName: env.cloudinaryCloudName,
+  uploadPreset: env.cloudinaryUploadPreset,
+  isConfigured: isCloudinaryConfigured,
 }
