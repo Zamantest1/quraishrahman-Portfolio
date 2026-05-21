@@ -30,13 +30,7 @@ export function FeaturedCaseStudy({ caseStudy }: Props) {
           className="mt-12 relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)]/80 p-6 sm:p-10 lg:p-12"
         >
           <div className="pointer-events-none absolute inset-0 -z-10 opacity-50" aria-hidden>
-            <div
-              className="absolute -right-1/4 top-0 size-[60%] rounded-full"
-              style={{
-                background:
-                  'radial-gradient(closest-side, rgba(59,130,246,0.22), transparent 70%)',
-              }}
-            />
+            <div className="absolute -right-1/4 top-0 size-[60%] rounded-full hero-orb-soft" />
           </div>
           <div className="grid gap-10 lg:grid-cols-5 lg:items-center">
             <div className="lg:col-span-3">

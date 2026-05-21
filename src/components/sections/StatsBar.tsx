@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { Award, Globe2, LineChart, Sparkles } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { homepageStatsDisplay } from '@/lib/content-defaults'
 
@@ -31,13 +32,20 @@ function formatBigNumber(n: number, suffix?: string): string {
   return `${n}${suffix ?? ''}`
 }
 
-type StatProps = (typeof homepageStatsDisplay)[number] & { inView: boolean }
+// Icons attach to stats in the order they appear in homepageStatsDisplay.
+const statIcons = [LineChart, Globe2, Sparkles, Award]
 
-function Stat({ rawValue, suffix, label, inView }: StatProps) {
+type StatProps = (typeof homepageStatsDisplay)[number] & { inView: boolean; index: number }
+
+function Stat({ rawValue, suffix, label, inView, index }: StatProps) {
   const value = useCounter(rawValue, 1400, inView)
   const display = rawValue >= 1000 ? formatBigNumber(value, suffix) : `${value}${suffix ?? ''}`
+  const Icon = statIcons[index % statIcons.length] ?? LineChart
   return (
-    <div className="text-center">
+    <div className="flex flex-col items-center text-center">
+      <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full bg-[var(--color-accent-tint)] text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]/25">
+        <Icon className="size-4" aria-hidden />
+      </div>
       <div
         className="text-4xl sm:text-5xl font-bold text-[var(--color-accent)]"
         style={{ fontFamily: 'var(--font-display)' }}
@@ -60,10 +68,12 @@ export function StatsBar() {
           initial={{ opacity: 0, y: 12 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-2 gap-8 sm:gap-10 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-y-10 sm:gap-y-12 lg:grid-cols-4 lg:divide-x lg:divide-[var(--color-line)]/70"
         >
-          {homepageStatsDisplay.map((s) => (
-            <Stat key={s.label} {...s} inView={inView} />
+          {homepageStatsDisplay.map((s, i) => (
+            <div key={s.label} className={i > 0 && i < 4 ? 'lg:pl-8' : 'lg:pr-8 lg:pl-0'}>
+              <Stat {...s} inView={inView} index={i} />
+            </div>
           ))}
         </motion.div>
       </Container>

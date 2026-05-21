@@ -37,18 +37,33 @@ export const homepageServices = [
     description: 'Find indexation issues, slow pages, crawl waste and schema gaps that hold strong pages back.',
     icon: 'Search',
     slug: 'technical-seo-audit',
+    bullets: [
+      'Crawl + indexation audit',
+      'Core Web Vitals review',
+      'Prioritized 30/60/90 roadmap',
+    ],
   },
   {
     title: 'Content & Keyword Strategy',
     description: 'Turn keyword research into intent-mapped topic clusters and a publishing plan your team can ship.',
     icon: 'FileText',
     slug: 'content-keyword-strategy',
+    bullets: [
+      'Keyword universe + intent map',
+      'Topic clusters & pillars',
+      '6-month editorial calendar',
+    ],
   },
   {
     title: 'Link Building & Authority',
     description: 'Earn relevant, high-quality links and editorial mentions that compound your topical authority.',
     icon: 'Link',
     slug: 'link-building-authority',
+    bullets: [
+      'Editorial outreach & digital PR',
+      'Linkable asset identification',
+      'Internal authority routing',
+    ],
   },
 ] as const
 

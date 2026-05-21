@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Syne } from 'next/font/google'
 import './globals.css'
 import { siteMetadata } from '@/lib/metadata'
+import { ThemeProvider, themeBootstrapScript } from '@/components/ThemeProvider'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -39,8 +40,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${syne.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${inter.variable} ${syne.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Set the theme before React hydrates so the palette never flashes. */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }
