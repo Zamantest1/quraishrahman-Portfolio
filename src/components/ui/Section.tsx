@@ -10,7 +10,10 @@ type Props = {
 }
 
 export function Section({ children, className = '', variant = 'canvas', id }: Props) {
-  const bg = variant === 'surface' ? 'bg-[var(--color-surface)]/40' : 'bg-transparent'
+  const bg =
+    variant === 'surface'
+      ? 'bg-[var(--color-section-tint)]'
+      : 'bg-transparent'
   return (
     <section
       id={id}

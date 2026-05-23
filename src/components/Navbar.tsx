@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const navLinks: Array<{ href: string; label: string }> = [
   { href: '/', label: 'Home' },
@@ -43,7 +44,7 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'backdrop-blur-xl bg-[rgba(8,12,20,0.78)] border-b border-[var(--color-line)]/70'
+          ? 'backdrop-blur-xl bg-[rgba(var(--color-canvas-rgb),0.78)] border-b border-[var(--color-line)]/70 shadow-[0_8px_24px_-16px_rgba(0,0,0,0.45)]'
           : 'bg-transparent'
       }`}
     >
@@ -73,17 +74,21 @@ export function Navbar() {
             )
           })}
         </nav>
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-2">
+          <ThemeToggle />
           <Button href="/contact" size="sm">Get a Free Audit</Button>
         </div>
-        <button
-          type="button"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          className="lg:hidden inline-flex size-10 items-center justify-center rounded-full border border-[var(--color-line)] text-[var(--color-foreground)] hover:border-[var(--color-accent)]/50"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="inline-flex size-10 items-center justify-center rounded-full border border-[var(--color-line)] text-[var(--color-foreground)] hover:border-[var(--color-accent)]/50"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </div>
       <AnimatePresence>
         {open ? (
